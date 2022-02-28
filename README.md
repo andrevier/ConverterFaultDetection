@@ -7,7 +7,7 @@ Portanto, o objetivo desse estudo é a melhoria da confiabilidade do inversor at
 ## Organização do Arquivos Inclusos
 - source: Pasta para os arquivos já feitos. 
 - test: Pasta para todos os arquivos em teste para verificação ou modificação. 
-- Issues: Lista contendo todos os ítens para a conclusão do trabalho. 
+- issues: Lista contendo todos os ítens para a conclusão do trabalho. 
 
 Cada ensaio ou experiência é armazenado em uma pasta separada para facilitar o seu acesso. 
 
