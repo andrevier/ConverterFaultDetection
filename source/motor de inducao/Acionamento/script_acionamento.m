@@ -62,7 +62,7 @@ T = table(nomesLinhas, Variavel, unidade);
 cd ..\
 cd ..\
 source = pwd;
-nomeArquivo = '\valoresNominais.txt';
+nomeArquivo = '\variaveisNominais.txt';
 writetable(T, strcat(source,nomeArquivo));
 
 % voltar para o diretorio inicial.

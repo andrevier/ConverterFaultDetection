@@ -11,12 +11,13 @@ sim('ensaio_torque_velocidade',tempo_max)
 cd ..\
 cd ..\
 tabela = readtable('valoresNominais.txt');
-S = tabela(1,2);
-Ipn = tabela(4,2);
-rnom = tabela(7,2);
 
 % Voltar para o arquivo Torque Velocidade
 cd 'motor de inducao'\'Torque Velocidade'
+
+var = tabela.Variavel;
+Ipn = var(4);
+rnom = var(7);
 
 % O período transitório termina em 1.0s. Para melhorar o gráfico, podemos
 % preencher esse período com a melhor curva parabólica que se encaixa nesse
@@ -30,54 +31,36 @@ Te(remover_indice) = f(constante,tempo(remover_indice));
 [Te_max, indice_Te_max] = max(Te);
 
 % Torque na velocidade nominal
-rotor_speed_nom = table2float(rnom);
-maior_que_nominal = rotor_speed > rotor_speed_nom;
-tam_maior_que_nominal = length(rotor_speed(maior_que_nominal));
-indice_n_nom = length(Te) - tam_maior_que_nominal;
-Te_nom = Te(indice_n_nom);
-n_nom = rotor_speed(indice_n_nom);
-
+rotorSpeed_round = round(rotor_speed,2);
+r_MaiorQueNominal = rotorSpeed_round >= rnom;
+indice_MaiorQueNominal = find(r_MaiorQueNominal);
+indice_rnom = indice_MaiorQueNominal(1);
+Te_nom = Te(indice_rnom);
+tempo_nom = tempo(indice_rnom); 
+n_nom = rotor_speed(indice_rnom);
+slip_max = (1800. - rotor_speed(indice_Te_max))/1800.; 
 % Fator de potência na velocidade nominal
-pf_nom = power_factor(indice_n_nom);
-
-% Velocidade máxima do rotor
-[rs_max,indice_rs_max] = max(rotor_speed);
-
-% pico da corrente do estator
-[isa_max,indice_isa_max] = max(is_a);
-[is_rms_max, indice_is_rms_max] = max(is_rms);
-
-% Cálculo do torque nominal a partir da corrente nominal:
-I_nom = 5.87;
-menor_que_nominal = is_rms < I_nom;
-tam_menor_que_nominal = length(is_rms(menor_que_nominal));
-indice_I_nom = length(is_rms) - tam_menor_que_nominal;
-verificar_I_nom = is_rms(indice_I_nom);
-
-% fator de potência
-[pf,indice_pf] = max(power_factor);
+pf_nom = power_factor(indice_rnom);
 
 fprintf('-------------------\n')
-fprintf('Velocidade síncrona rotor: %.2f rpm; indice %d \n',rs_max,indice_rs_max)
+fprintf('Fator de potência nominal: %.2f \n', pf_nom)
+fprintf('Máximo torque (pull-out): %.2f N.m\n', Te_max)
+fprintf('Máximo slip (pull-out): %.2f \n', slip_max)
 
-fprintf('Torque max: %.2f N.m; indice: %d\n', Te_max, indice_Te_max)
-fprintf('Velocidade do torque max: %.2f rpm ; indice: %d\n',rotor_speed(indice_Te_max),indice_Te_max)
-fprintf('Escorregamento do torque max: %.2f \n\n',(rs_max - rotor_speed(indice_Te_max))/rs_max)
 
-fprintf('Pico da corrente do estator: %.2f A ; indice %d\n', isa_max, indice_isa_max)
-fprintf('Pico da corrente rms do estator: %.2f A rms; indice %d\n', is_rms_max, indice_is_rms_max)
-fprintf('Corrente rms de maior carga: %.2f A rms; indice %d\n', is_rms(indice_Te_max), indice_Te_max);
-fprintf('Fator de potência máximo atingido: %.2f\n', pf)
-fprintf('corrigir:\n')
-fprintf('Fator de potência nominal: %.2f\n', pf_nom)
-fprintf('Torque nominal: %.2f\n', Te_nom)
-fprintf('Velocidade nominal: %.2f\n\n', n_nom)
+linhasnovas = {'Torque máximo', round(Te_max,2), 'N.m';...
+               'Slip máximo', round(slip_max,4), '--'};
+tabelanova = [tabela;linhasnovas];
 
-fprintf('Corrente nominal: %.2f\n', verificar_I_nom)
-fprintf('Torque nominal: %.2f\n', Te(indice_I_nom))
-fprintf('Fator de potência: %.2f\n', power_factor(indice_I_nom))
-fprintf('Velocidade nominal: %.2f\n',rotor_speed(indice_I_nom))
-fprintf('Escorregamento nominal: %.2f\n',(rs_max - rotor_speed(indice_I_nom))/rs_max)
+% Pegar a localização da pasta source que está 2 níveis acima:
+cd ..\
+cd ..\
+source = pwd;
+nomeArquivo = '\variaveisNominais.txt';
+writetable(tabelanova, strcat(source,nomeArquivo));
+
+% Voltar para o arquivo Torque Velocidade
+cd 'motor de inducao'\'Torque Velocidade'
 
 % Gráfico Torque elétrico x tempo
 figure(1);
