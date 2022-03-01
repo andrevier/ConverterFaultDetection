@@ -31,12 +31,13 @@ indice_transitorio = tempo < 1.;
 % Velocidade máxima do rotor (síncrona)
 [rs_max, indice_rs_max] = max(rotor_speed);
 
-% Indice da corrente nominal
-is_a_ = is_a(1:indice_fim_do_transitorio);
-I_maior_que_nominal = is_a_ >= Ipn;
-[Ipn_a, indice_Ipn_a] = min(is_a_(I_maior_que_nominal));
-%indice_Ipn = indice_Ipn_a;
-indice_Ipn = 36870;
+% O cálculo da velocidade, escorregamento e torque nominais dependem da
+% única informação sobre o motor disponível: a corrente nominal.
+% Indice da corrente nominal calculado a partir do ensaio no tempo 3s, que
+% é o tempo em que a velocidade nominal é obtida.
+tempo3s = tempo > 3.;
+indice3s = find(tempo3s);
+indice_Ipn = indice3s(1);
 tempo_Ipn = tempo(indice_Ipn);
 rs_n = rotor_speed(indice_Ipn);
 slip = (1800 - rs_n)/1800;
@@ -47,22 +48,47 @@ slip_max = (1800 - rs_max)/1800;
 [is_rms_max, indice_is_rms_max] = max(is_rms);
 is_sinc = is_rms(indice_rs_max);
 
+% Valores nominais salvos em uma tabela
+Ipn_ = is_a(indice_Ipn);
+Tenom = Te(indice_Ipn);
+Variavel = [round(S,2);  round(Vn,2);     round(In,2); round(Ipn_,2); round(Tenom,2); round(slip,2);  round(rs_n,2); round(rs_max,2)];
+unidade = {'VA'; 'Vrms'; 'Arms';  'A'; 'N.m';  '--'; 'rpm';  'rpm'};
+
+nomesVar = {'Variáveis', 'Unidades'};
+nomesLinhas = {'Potência'; 'Tensão nominal'; 'Corrente nominal'; 'Corrente nominal (pico)'; 'Torque nominal'; 'Slip'; 'Velocidade nominal'; 'Velocidade max'};
+T = table(nomesLinhas, Variavel, unidade);
+
+% Pegar o caminho da pasta source que está 2 níveis acima:
+cd ..\
+cd ..\
+source = pwd;
+nomeArquivo = '\valoresNominais.txt';
+writetable(T, strcat(source,nomeArquivo));
+
+% voltar para o diretorio inicial.
+cd 'motor de inducao'\Acionamento
+
 fprintf('-------------------\n')
+fprintf('Valores nominais:\n')
+fprintf('S = %.2f VA \n', S)
+fprintf('Vn = %.2f V rms \n',Vn)
+fprintf('In = %.2f A rms \n', In)
+fprintf('In medida (pico) = %.2f A \n', is_a(indice_Ipn))
+fprintf('Torque elétrico nominal medido = %.2f N.m \n', Te(indice_Ipn))
+fprintf('Velocidade nominal = %.2f rpm \n', rs_n)
+fprintf('Escorregamento nominal = %.4f \n\n', slip)
 
-fprintf('Torque max: %.2f N.m; indice: %d\n', Te_max, indice_Te_max)
-fprintf('Velocidade do torque max: %.2f rpm; indice: %d\n',rotor_speed(indice_Te_max),indice_Te_max)
-fprintf('Velocidade máxima sem carga: %.2f rpm\n', rs_max)
-fprintf('Torque na velocidade máxima: %.2f N.m\n',Te_min)
-fprintf('Corrente na velocidade máxima: %.2f A rms\n',is_sinc)
-
-fprintf('Velocidade nominal: %.2f rpm \n', rs_n)
-fprintf('Escorregamento nominal: %.4f \n', slip)
-fprintf('Escorregamento na velocidade máxima: %.4f \n', slip_max)
-fprintf('Torque elétrico nominal: %.2f N.m\n', Te(indice_Ipn))
-fprintf('Corrente nominal (pico): %.2f A \n', is_a(indice_Ipn))
+fprintf('Valores na partida:\n')
+fprintf('Torque de partida: %.2f N.m\n', Te_max)
+fprintf('Velocidade do torque de partida: %.2f rpm\n',rotor_speed(indice_Te_max))
 fprintf('Pico da corrente do estator: %.2f A; indice %d\n', isa_max, indice_isa_max)
-fprintf('Pico da corrente rms do estator: %.2f A rms; indice %d\n',is_rms_max, indice_is_rms_max)
-fprintf('Corrente rms de maior carga: %.2f A rms; indice %d\n',is_rms(indice_Te_max), indice_Te_max);
+fprintf('Pico da corrente rms do estator: %.2f A rms; indice %d\n\n',is_rms_max, indice_is_rms_max)
+
+fprintf('Valores a vazio:\n')
+fprintf('Velocidade a vazio: %.2f rpm\n', rs_max)
+fprintf('Torque a vazio: %.2f N.m\n',Te_min)
+fprintf('Corrente a vazio: %.2f A rms\n',is_sinc)
+fprintf('Escorregamento a vazio: %.4f \n\n', slip_max)
 
 % Gráfico Torque elétrico x tempo
 figure(1);
@@ -97,13 +123,6 @@ xlabel('Tempo (s)');
 ylabel('Is rms (A)');
 title('Curva da corrente rms com o tempo.');
 grid on
-
-% Gráfico corrente e torque
-figure(3)
-plot(is_rms,Te)
-xlabel('Is rms (A)')
-ylabel('Torque elétrico N.m')
-title('Curva corrente por torque')
 
 
 

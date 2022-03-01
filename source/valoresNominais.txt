@@ -1,0 +1,9 @@
+nomesLinhas,Variavel,unidade
+Potência,2237.1,VA
+Tensão nominal,220,Vrms
+Corrente nominal,5.87,Arms
+Corrente nominal (pico),9.23,A
+Torque nominal,7.7,N.m
+Slip,0.05,--
+Velocidade nominal,1711.55,rpm
+Velocidade max,1790.14,rpm

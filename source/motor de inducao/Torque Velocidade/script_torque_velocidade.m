@@ -7,6 +7,17 @@ Ts = 2e-05;
 tempo_max = 5.0;
 sim('ensaio_torque_velocidade',tempo_max)
 
+% Obter valores nominais na tabela source\valoresNominais.txt
+cd ..\
+cd ..\
+tabela = readtable('valoresNominais.txt');
+S = tabela(1,2);
+Ipn = tabela(4,2);
+rnom = tabela(7,2);
+
+% Voltar para o arquivo Torque Velocidade
+cd 'motor de inducao'\'Torque Velocidade'
+
 % O período transitório termina em 1.0s. Para melhorar o gráfico, podemos
 % preencher esse período com a melhor curva parabólica que se encaixa nesse
 % intervalo.
@@ -19,7 +30,7 @@ Te(remover_indice) = f(constante,tempo(remover_indice));
 [Te_max, indice_Te_max] = max(Te);
 
 % Torque na velocidade nominal
-rotor_speed_nom = 1704.20;
+rotor_speed_nom = table2float(rnom);
 maior_que_nominal = rotor_speed > rotor_speed_nom;
 tam_maior_que_nominal = length(rotor_speed(maior_que_nominal));
 indice_n_nom = length(Te) - tam_maior_que_nominal;
