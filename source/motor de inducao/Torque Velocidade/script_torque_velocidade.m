@@ -10,7 +10,7 @@ sim('ensaio_torque_velocidade',tempo_max)
 % Obter valores nominais na tabela source\valoresNominais.txt
 cd ..\
 cd ..\
-tabela = readtable('valoresNominais.txt');
+tabela = readtable('variaveisNominais.txt');
 
 % Voltar para o arquivo Torque Velocidade
 cd 'motor de inducao'\'Torque Velocidade'
