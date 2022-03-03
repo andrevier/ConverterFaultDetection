@@ -14,3 +14,4 @@
 - [ ] 7. Iniciar o texto da dissertação.
 - [ ] 8. Fazer experiências com diferentes tamanhos de amostras para o cálculo da corrente média (VCM).
 - [ ] 9. Variação das resistências inseridas em série nos conversores para entender o caminho das faltas.
+- [x] 10. Testes de CC para a definição da proteção do motor.
