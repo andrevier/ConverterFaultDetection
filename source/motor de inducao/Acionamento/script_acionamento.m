@@ -9,14 +9,14 @@ close all
 Ts = 2e-05;
 tempo_max = 6.0;
 
-% Execução da simulação.
-sim('acionamento',tempo_max)
-
 % Valores nominais rms.
 S = 3*745.7;
 Vn = 220;
 In = S/(sqrt(3)*Vn);
 Ipn = In*sqrt(2);
+
+% Execução da simulação.
+sim('acionamento',tempo_max)
 
 % Fim do período transitório
 indice_transitorio = tempo < 1.;
@@ -31,17 +31,18 @@ indice_transitorio = tempo < 1.;
 % Velocidade máxima do rotor (síncrona)
 [rs_max, indice_rs_max] = max(rotor_speed);
 
-% O cálculo da velocidade, escorregamento e torque nominais dependem da
-% única informação sobre o motor disponível: a corrente nominal.
-% Indice da corrente nominal calculado a partir do ensaio no tempo 3s, que
-% é o tempo em que a velocidade nominal é obtida.
-tempo3s = tempo > 3.;
-indice3s = find(tempo3s);
-indice_Ipn = indice3s(1);
-tempo_Ipn = tempo(indice_Ipn);
-rs_n = rotor_speed(indice_Ipn);
-slip = (1800 - rs_n)/1800;
-slip_max = (1800 - rs_max)/1800;
+% Supondo o escorregamento 5%, podemos calcular a velocidade e torque
+% nominal e a corrente. 
+slip = 0.05;
+slipmin = (1800 - rs_max)/1800;
+
+% Velocidade nominal do motor (rpm).
+rs_n_ = rs_max*(1 - slip);
+
+% Encontrar seu índice.
+rs_round = round(rotor_speed,2);
+indice_menorquers_n = rs_round <= round(rs_n_,2);
+[rs_n, indice_rs_n] = max(rs_round(indice_menorquers_n));
 
 % pico da corrente do estator e pico rms
 [isa_max,indice_isa_max] = max(is_a);
@@ -49,18 +50,18 @@ slip_max = (1800 - rs_max)/1800;
 is_sinc = is_rms(indice_rs_max);
 
 % Valores nominais salvos em uma tabela
-Ipn_ = is_a(indice_Ipn);
-Tenom = Te(indice_Ipn);
-Variavel = [round(S,2);  round(Vn,2);     round(In,2); round(Ipn_,2); round(Tenom,2); round(slip,2);  round(rs_n,2); round(rs_max,2)];
-unidade = {'VA'; 'Vrms'; 'Arms';  'A'; 'N.m';  '--'; 'rpm';  'rpm'};
+Ipn_ = is_a(indice_rs_n);
+In_rms = is_rms(indice_rs_n);
+Tenom = Te(indice_rs_n);
+Valor = [round(S,2);  round(Vn,2); round(In_rms,2); round(Ipn_,2); round(Tenom,2); round(slip,2);  round(rs_n,2); round(rs_max,2)];
+Unidade = {'VA'; 'Vrms'; 'Arms';  'A'; 'N.m';  '--'; 'rpm';  'rpm'};
 
 nomesVar = {'Variáveis', 'Unidades'};
-nomesLinhas = {'Potência'; 'Tensão nominal'; 'Corrente nominal'; 'Corrente nominal (pico)'; 'Torque nominal'; 'Slip'; 'Velocidade nominal'; 'Velocidade max'};
-T = table(nomesLinhas, Variavel, unidade);
+Nome = {'Potência'; 'Tensão nominal'; 'Corrente nominal'; 'Corrente nominal (pico)'; 'Torque nominal'; 'Slip'; 'Velocidade nominal'; 'Velocidade max'};
+T = table(Nome, Valor, Unidade);
 
 % Pegar o caminho da pasta source que está 2 níveis acima:
-cd ..\
-cd ..\
+cd ..\..
 source = pwd;
 nomeArquivo = '\variaveisNominais.txt';
 writetable(T, strcat(source,nomeArquivo));
@@ -72,9 +73,9 @@ fprintf('-------------------\n')
 fprintf('Valores nominais:\n')
 fprintf('S = %.2f VA \n', S)
 fprintf('Vn = %.2f V rms \n',Vn)
-fprintf('In = %.2f A rms \n', In)
-fprintf('In medida (pico) = %.2f A \n', is_a(indice_Ipn))
-fprintf('Torque elétrico nominal medido = %.2f N.m \n', Te(indice_Ipn))
+fprintf('In = %.2f A rms \n', In_rms)
+fprintf('In (pico) = %.2f A \n', Ipn_)
+fprintf('Torque elétrico nominal medido = %.2f N.m \n', Tenom)
 fprintf('Velocidade nominal = %.2f rpm \n', rs_n)
 fprintf('Escorregamento nominal = %.4f \n\n', slip)
 
@@ -88,7 +89,7 @@ fprintf('Valores a vazio:\n')
 fprintf('Velocidade a vazio: %.2f rpm\n', rs_max)
 fprintf('Torque a vazio: %.2f N.m\n',Te_min)
 fprintf('Corrente a vazio: %.2f A rms\n',is_sinc)
-fprintf('Escorregamento a vazio: %.4f \n\n', slip_max)
+fprintf('Escorregamento a vazio: %.4f \n\n', slipmin)
 
 % Gráfico Torque elétrico x tempo
 figure(1);
@@ -97,8 +98,8 @@ plot(tempo, Te)
 xlabel('Tempo (s)');
 ylabel('Torque Elétrico (N.m)');
 title('Torque x tempo');
-hold on
-plot(tempo(indice_Te_max),Te_max,'ro')
+% hold on
+% plot(tempo(indice_Te_max),Te_max,'ro')
 grid on
 
 % Gráfico Velocidade do rotor x tempo
@@ -112,18 +113,13 @@ grid on
 % Gráfico com a magnitude da corrente
 figure(2)
 plot(tempo,is_a,'b')
-xlabel('Tempo (s)');
-ylabel('Isa (A)');
-title('Curva da magnitude da corrente com o tempo.');
 hold on
 plot(tempo, is_rms,'r');
-hold on
-plot(tempo_Ipn,is_a(indice_Ipn),'ro');
 xlabel('Tempo (s)');
-ylabel('Is rms (A)');
-title('Curva da corrente rms com o tempo.');
+ylabel('Corrente do estator(A)');
+title('Curva da magnitude da corrente com o tempo.');
+legend('|Isa|', 'Isa rms')
 grid on
-
 
 
 
