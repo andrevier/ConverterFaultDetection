@@ -14,7 +14,7 @@ tabela = readtable('variaveisNominais.txt');
 % Voltar para o arquivo Acionamento do Drive MI
 cd 'Acionamento do Drive do MI'
 
-var = tabela.Variavel;
+var = tabela.Valor;
 Ipn = var(4);
 Ten = var(5);
 

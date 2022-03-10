@@ -16,5 +16,5 @@
 - [ ] 9. Variação das resistências inseridas em série nos conversores para entender o caminho das faltas.
 - [x] 10. Testes de CC para a definição da proteção do motor.
 - [ ] 11. Gráfico resumindo todas os dados coletados dos ensaios da corrente média (VCM) nas condições de falta (item 5).
-- [ ] 12. Condições de falta em 2 chaves por vez. Gerar gráfico resumindo os VCM obtidos.
+- [x] 12. Condições de falta em 2 chaves por vez. Gerar gráfico resumindo os VCM obtidos.
 - [ ] 13. Limite para as resistências em série nos ensaios de falta.
