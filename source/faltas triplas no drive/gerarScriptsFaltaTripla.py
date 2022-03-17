@@ -278,17 +278,6 @@ introAcionamentoChaves = \
 % Cada IGBT tem 7 resistores em série que são acionados pelo disparo de uma
 % chave em paralelo. 
 """
-# Nomes de todas as pastas com os casos.
-# nomePasta = ['faltaC123', 'faltaC124', 'faltaC125', 'faltaC126',\
-#              'faltaC134', 'faltaC135', 'faltaC136',\
-#              'faltaC145', 'faltaC146',\
-#              'faltaC156',\
-#              'faltaC234', 'faltaC235', 'faltaC236',\
-#              'faltaC245', 'faltaC246', 'faltaC256',\
-#              'faltaC345', 'faltaC346',\
-#              'faltaC356',\
-#              'faltaC456']
-
 nomeDasPastas = []
 mypath = os.getcwd()
 for (dirpath, dirnames, filenames) in os.walk(mypath):
@@ -326,34 +315,37 @@ seq = {'C123':['C1','C2','C3','C4','C5','C6'],
        'C456':['C4','C5','C6','C1','C2','C3']}
 # Para cada uma das pastas encontradas
 for k in range(len(nomeDasPastas)):
-    nomeCaso = re.sub('falta','',nomeDasPastas[k])
-
-    # Os casos envolvem as variações das resistências em série com os IGBTs, por isso:
-    # Para cada valor da resistência em série na primeira chave
-    for j in range(len(r1)):
-        # Para cada valor da resistência em série na segunda chave
-        for i in range(len(numSim)):
-            chaveC1 = C_init(seq[nomeCaso][0],j+1)
-            chaveC2 = C_init(seq[nomeCaso][1],i+1)
-            chaveC3 = C_seq(seq[nomeCaso][2])
-            chaveC4 = C_init(seq[nomeCaso][3],-1)
-            chaveC5 = C_init(seq[nomeCaso][4],-1)
-            chaveC6 = C_init(seq[nomeCaso][5],-1)
-            conclusao = fim(nomeCaso,nomeDasPastas[k], str(i+1), str(j+1))
-            nomeArquivo = mypath + '\\' + nomeDasPastas[k] + '\\' + nomeCaso + '_' + r1[j] + '_' + str(numSim[i]) + '.m'
-            
-            # Escrever o código no script
-            with open(nomeArquivo,'w') as f:
-                f.write(cabecalho)
-                f.write(inicio)
-                f.write(introAcionamentoChaves)
-                f.write(chaveC1)
-                f.write(chaveC2)
-                f.write(chaveC3)
-                f.write(chaveC4)
-                f.write(chaveC5)
-                f.write(chaveC6)
-                f.write(conclusao)
+    # Adicionar um verificador de nome de pasta. Só pastas que possuem nome 'falta'
+    if re.match(r"falta",nomeDasPastas[k]):
+        nomeCaso = re.sub('falta','',nomeDasPastas[k])
+        # Os casos envolvem as variações das resistências em série com os IGBTs, por isso:
+        # Para cada valor da resistência em série na primeira chave
+        for j in range(len(r1)):
+            # Para cada valor da resistência em série na segunda chave
+            for i in range(len(numSim)):
+                chaveC1 = C_init(seq[nomeCaso][0],j+1)
+                chaveC2 = C_init(seq[nomeCaso][1],i+1)
+                chaveC3 = C_seq(seq[nomeCaso][2])
+                chaveC4 = C_init(seq[nomeCaso][3],-1)
+                chaveC5 = C_init(seq[nomeCaso][4],-1)
+                chaveC6 = C_init(seq[nomeCaso][5],-1)
+                conclusao = fim(nomeCaso,nomeDasPastas[k], str(i+1), str(j+1))
+                nomeArquivo = mypath + '\\' + nomeDasPastas[k] + '\\' + nomeCaso + '_' + r1[j] + '_' + str(numSim[i]) + '.m'
+                
+                # Escrever o código no script
+                with open(nomeArquivo,'w') as f:
+                    f.write(cabecalho)
+                    f.write(inicio)
+                    f.write(introAcionamentoChaves)
+                    f.write(chaveC1)
+                    f.write(chaveC2)
+                    f.write(chaveC3)
+                    f.write(chaveC4)
+                    f.write(chaveC5)
+                    f.write(chaveC6)
+                    f.write(conclusao)
+    else:
+        pass
 
 
 
