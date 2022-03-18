@@ -40,15 +40,19 @@ grid on
 legend('Velocidade do rotor','referência');
 
 figure(2)
+subplot(3,1,1);
 plot(tempo,Isa)
-hold on
+ylabel('Isa (A)');
+
+subplot(3,1,2);
 plot(tempo,Isb)
-hold on 
+ylabel('Isb (A)');
+
+subplot(3,1,3);
 plot(tempo,Isc)
 xlabel('Tempo (s)');
-ylabel('Correntes (A)');
+ylabel('Isc (A)');
 title('Correntes do estator');
-legend('Isa','Isb','Isc');
 grid on
 
 figure(3)
