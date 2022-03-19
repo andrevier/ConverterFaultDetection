@@ -57,5 +57,9 @@ scatter(real(CMC6),imag(CMC6),'g')
 hold on 
 xlabel('I alpha');
 ylabel('I beta');
+xlim([-1 1]);
+ylim([-1 1]);
+title('VCM ao adicionar resistências em série a 1 IGBT por vez.')
+legend('C1', 'C2', 'C3', 'C4', 'C5', 'C6')
 grid on
 
