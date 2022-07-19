@@ -425,13 +425,13 @@ This section discuss the different approaches for OC fault diagnostics and their
 \subsection{DC Offset Based Methods}
 As explained in previous sections, the OC faults in a single transistor generates a DC offset between the fault and the healthy phase of the converter. Based on these features, the work of \cite{MendesCardoso09} introduced the fault detection and the defective switch location in a VSI with the average currents sampled at the inverter side.
 
-First, the average over 1 period of the three-phase current signals \(\overline{I}_A\), \(\overline{I}_B\) and \(\overline{I}_C\) are calculated with their respectives phase angles.
+First, the average over 1 period of the three-phase current signals \(I_A\), \(I_B\) and \(I_C\) are calculated with their respectives phase angles.
 
 \begin{equation}\label{eq:meancurrent}
     \overline{I}_{A,B,C} = |I_{A,B,C}|\angle \theta_{A,B,C}
 \end{equation}
 
-Given the sinusoidal nature of the current, a normal system has near 0 mean magnitude value. The degradation or anomalous conditions allow a DC offset in the signal which increases the average point's value. Hence, the Clarke's transform are applied to the currents as in equation \ref{eq:clarke}. 
+Given the sinusoidal nature of the current, sampling the signals within a time span with an integer number of periods results in a near 0 mean magnitude value for a normal system. The degradation or anomalous conditions allow a DC offset in the signal which increases the average value. At this point, the authors used the Clarke's transform  to reduce the number of paramenters as in equation \ref{eq:clarke}. 
 
 \begin{equation}\label{eq:clarke}
     \begin{bmatrix}
@@ -454,9 +454,34 @@ Given the sinusoidal nature of the current, a normal system has near 0 mean magn
     |\overline{I}| = \sqrt{I_\alpha^2 + I_\beta^2}
 \end{equation}
 
-The Clarke's transformation maps the space fasor of the current signal onto a carthesian coordinate system known as the $\alpha\beta$-frame in the literature \cite{Yazdani10}. The events that damage the transistors increase the value of the $I_\alpha$ and $I_\beta$ gradually and its distance from the origin \ref{eq:alphabetadistance} increases. Experiments with a VSI drive with open loop control were made to determine the boundaries of the normal conditions for the current signals A, B, C, $|\overline{I}|$ and $\theta$ were made to determine where is the deffect and when it's triggered.
+\begin{equation}\label{eq:spacephasor}
+    \Vec{f}(t) = \frac{2}{3}(e^{j0}f_A(t) + e^{j\frac{2}{3}\pi}f_B(t) + e^{j\frac{4}{3}\pi}f_C(t))
+\end{equation}
 
-The load dependence is one of the algorithm's deficiency, because the higher the current fasor is, the higher its absolute value is affected by the degradation and moves further away the origin of the $\alpha\beta$ plane. Therefore, the thresholds need to be updated for each load. To solve this drawback, the work of \cite{RothenhagenFuchs05} normalizes the mean current value. This is achieved by computing the first order harmonic coefficients with the Discrete Fourier Transform (DFT) and dividing the mean value \ref{eq:meancurrent} by the absolute value of the first harmonic. The equation for the normalized current method is shown as follows:
+The current space-phasor, defined by \ref{eq:spacephasor} in \cite{Yazdani10}, is a complex quantity that can be represented by a vector fixed at the origin of the complex plane and rotating with an angular speed $\omega$. If the three-phase system is symmetrical, the space-phasor defined by its parameters, current of voltage, results in a constant module vector, as the figure \ref{fig:currentspacephasor} illustrates, so that a point on the tip of the vector cover a circular path. The Clarke's transformation in \ref{eq:clarke} maps the space-phasor of the current signal onto a carthesian coordinate system known as the $\alpha\beta$-frame in the literature \cite{Yazdani10}. This is done by projecting the vector in real and imaginary parts, equation \ref{eq:mapto_alphabeta}.
+
+\begin{equation}\label{eq:mapto_alphabeta}
+    \Vec{f} = \Vec{f_\alpha} + j\Vec{f_\beta}
+\end{equation}
+
+The events that damage the transistors increase the mean value of the $I_\alpha$ and $I_\beta$ in an asymmetrical manner and, gradually, its distance from the origin \ref{eq:alphabetadistance}. Experiments with a VSI drive with open loop control were made to determine the boundaries of the normal conditions for the current signals A, B, C, $|I|$ and $\theta$ were made to determine where is the deffect and when it's triggered.
+
+
+\begin{figure}
+    \centering
+
+\begin{tikzpicture}
+\draw[->,thick] (-4,0)--(4,0) node[right]{$Re$};
+\draw[->,thick] (0,-4)--(0,4) node[above]{$Im$};
+\draw[->,ultra thick](0,0)--(2.4,2.4);
+\draw (2.2,1.5) node{$f(t)$};
+\draw[dashed] (0,0) circle (3.39);
+\end{tikzpicture}
+    \caption{Space-phasor vector in the complex plane.}
+    \label{fig:currentspacephasor}
+\end{figure}
+
+The motor's load dependence is one of this algorithm's deficiency, because the higher the current-phasor is, the higher its absolute value is affected by the degradation and moves further away the origin of the $\alpha\beta$ plane. Therefore, the thresholds need to be updated for each load. To solve this drawback, the work of \cite{RothenhagenFuchs05} normalizes the mean current value. This is achieved by computing the first order harmonic coefficients with the Discrete Fourier Transform (DFT) and dividing the mean value \ref{eq:meancurrent} by the absolute value of the first harmonic. The equation for the normalized current method is shown as follows:
 
 \begin{equation}\label{eq:normalizedmeancurrent}
     \Tilde{I}_{A,B,C} = \frac{I_{A,B,C}}{\sqrt{a^2 + b^2}}\angle \theta_{A,B,C}
@@ -507,7 +532,7 @@ Transistor & d_{1A} & d_{1B} & d_{1C} & d_{2A} & d_{2B} & d_{2C}\\[0.5ex]
     \label{tab:RothenhagenFuchs05Table}
 \end{table}
 
-The authors also presented a modified version of this method to better perform under low currents, less than 10 $A_rms$, and with a close loop control. This modified normalized DC current method uses the same equations but with a less restrict classification of faults, reproduced in the table \ref{tab:RothenhagenFuchs05Table2}, where the blanks means that the value is neglected. Also, to prevent more than one condition fulfilled, only the largest absolute value among the currents at the time is used to analyse the thresholds.
+The authors noticed a poor performance of this method under low currents, less than 10 $A_{rms}$, and with closed loop control. Therefore, a modified version of this strategy was proposed with the same equations but with a less restrict classification of faults. The table \ref{tab:RothenhagenFuchs05Table2} reproduces the values from each parameter \ref{eq:Ithreshold1} and \ref{eq:Ithreshold2} to detect a fault, where the blanks means that the value is neglected. Also, to prevent more than one condition fulfilled, only the largest absolute value among the currents at the time is used to analyse the thresholds.
 
 \begin{table}
 \centering
@@ -531,6 +556,96 @@ Transistor & d_{1A} & d_{1B} & d_{1C} & d_{2A} & d_{2B} & d_{2C}\\[0.5ex]
     \caption{Table with values for the thresholds $d_1$ and $d_2$ and the respective transistor location for the modified normalized DC current method.}
     \label{tab:RothenhagenFuchs05Table2}
 \end{table}
+
+In \cite{Diallo2005}, the authors suggested a technique differentiated for high and low power applications with a view for the special needs of each class. For higher power drives, the authors alleged that the location of the fault becomes crucial, whereas for low power, less than 1 kW, the key point is detecting abnormal conditions, once the power module is of lower cost than a repair.
+
+The detection procedure for high power devices is arranged in a probabilistic way. The current sampled at the output of the inverter is transformed in the $\alpha\beta$ coordinates. Hence, the average of the sample is calculated for each axis, $\alpha$ and $\beta$, and each sample can be viewed as a point in the plane $\alpha\beta$ by its coordinates \ref{eq:meancurrentvector} with the mean values.   
+
+\begin{equation}\label{eq:meancurrentvector}
+    \Vec{I} = (I_\alpha,I_\beta)
+\end{equation}
+
+Its supposed a normal distribution for the $\Vec{I}$ as in \ref{eq:Iprobdistri}, where $||I||$ is the module of the vector in equation \ref{eq:currentmodule} and $\sigma_0$ is the standard deviation and depends on the maximum offset current. 
+\begin{equation}\label{eq:currentmodule}
+    ||I|| = \sqrt{I^2_\alpha + I^2_\beta}
+\end{equation}
+\begin{equation}\label{eq:Iprobdistri}
+    p(\Vec{I}) = \frac{1}{2\pi\sigma^2_0}\exp(-\frac{||I||^2}{2\sigma^2_0})
+\end{equation}
+
+Developing the definition \ref{eq:Iprobdistri} for the maximum normal offset $I_0$ results in the current bound \ref{eq:currentbound}:
+
+\begin{equation} \label{eq:currentbound}
+    I_0 = 2\sigma^2_0\ln(2\pi\sigma^2_0p_0) 
+\end{equation}
+
+This bound depends on the probability threshold $p_0$ and can be seen as a circle with center at the origin of the $\alpha\beta$ plane, as in figure \ref{fig:alphabetaplane}. Beyond this circle's radius, the samples display a fault behavior. Moreover, according to \cite{Diallo2005}, experiments show that a single switch OC faults are likely to be along the 6 axis represented in the figure \ref{fig:alphabetaplane} by the name T1 to T6, relating the faults in the switch 1 to 6 of the inverter, respectively.
+
+\begin{figure}
+    \centering
+
+\begin{tikzpicture}
+\draw[->,thick] (-5,0)--(5,0) node[right]{$\alpha$};
+\draw[->,thick] (0,-5)--(0,5) node[above]{$\beta$};
+
+% Axis
+\draw (0,0) -- (60:5cm) coordinate (B);
+\draw (0,0) -- (120:5cm);
+\draw (0,0) -- (240:5cm);
+\draw (0,0) -- (300:5cm);
+
+\draw (2.5,3) node{$T_3$};
+\draw (-2.5,-3) node{$T_6$};
+\draw (2.5,-3) node{$T_2$};
+\draw (-2.5,3) node{$T_5$};
+\draw (3.9,0.5) node{$T_4$} coordinate (A);
+\draw (-3.9,0.5) node{$T_1$};
+
+
+\draw (4.0,-1.5) node{$||I_0||$};
+
+\draw[thick] (0,0) circle (3.cm);
+
+\coordinate (O) at (0,0);
+\pic[draw, ->, "$\frac{\pi}{6}$",angle eccentricity=2] {angle= A--O--B};
+\node
+\end{tikzpicture}
+    \caption{Fault detection and diagnosis space in the $\alpha\beta$ plane. Reproduced of \cite{Diallo2005}.}
+    \label{fig:alphabetaplane}
+\end{figure}
+
+If the samples are in the fault region, its module is projected in each one of the 6 axis; The shorter projection indicates the axis and the direction of the module, the defective switch. 
+
+For low power converters, the authors dedicate the algorithm to split the plane into two classes: normal and abnormal. The data used are the coordinates of the vector $\Vec{I}$ and the classification applied by the authors are within the Machine Learning scope and is done by a Radial Basis Function Neural Network (RBFNN) trained by the dataset including all the load conditions. The choosen archtecture for the Neural Networks (NN) has three layers as in the figure below. 
+
+draw the neural network.
+talk about the algorithm and how the neural network is made.
+conclude this article
+Studies cover misfiring switches. 
+
+in \cite{BandyopadhyayPrithwiraj16}, 
+
+Fuzzy \cite{ZidaniBenbouzid03}
+ANFIS \cite{ParkKim04}
+Anfis https://ieeexplore.ieee.org/document/7129352
+KNN \cite{BandyopadhyayPrithwiraj16}
+\cite{BandyopadhyayPurkait19}
+
+
+
+
+
+\subsection{Voltage Based Methods.}
+Where the measurements can be made.
+How to fault identification occurs.
+In \cite{AraujoJacobina03}, the authors tested 4 voltage based methods in a motor drive system with a open loop control. 
+
+\subsection{Spectrum Analysis and Wavelet Based Methods.}
+What does this methods are all about?
+Difference and time domain and frequency domain.
+Time-frequency domain with wavelets.
+
+Method \cite{CharfiSellami06}
 
 
 %(8)
