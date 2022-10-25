@@ -1,5 +1,6 @@
-powershellcmdlets.txt
-source\'faltas duplas no drive'\dados\
-executarAntesDoCommit.ps1
-*.mat
-*.asv
+# All files from .vscode
+.vscode
+
+# All files from env
+env
+
