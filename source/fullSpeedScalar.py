@@ -4,7 +4,7 @@ induction motor from the MATLAB preset. The model has scalar control,
 a fan load, and nominal speed.
 
 Summary 
-1) Normal Operation
+1) Normal operation and general plots.
 1.1) Frequency domain plots.
 
 2) Open-circuit simulation.
@@ -13,9 +13,10 @@ Summary
 3) Short-circuit simulation.
 3.1) Frequency domain plots.
 
-Date: 25/10/2022
+Date: 31/10/2022
 '''
  
+from re import I
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,17 +24,17 @@ import numpy as np
 import tools 
 
 # Select to plot or not
-togglePlot = False
+togglePlot = True
 
 # Nominal frequency
 fn = 50.0
 
 # Sample period
-Ts = 1.0e-6
+Ts = 1.e-06
 
-# 1) Normal operation. 
-# Import data from the simulation of open circuit with the model 15 at full
-# speed.
+# 1) Normal operation and general plots. 
+# Import data from the simulation of open circuit with the model 15 at
+# full speed.
 from Simulations.model15ScalarControl.openCircuit.T1FullSpeed import (
     Isa as IsAOpenCircuit,
     Isb as IsBOpenCircuit,
@@ -61,7 +62,7 @@ if (togglePlot):
     plt.plot(IsOpenCircuit[TIME],IsOpenCircuit[PHASEB], label="B")
     plt.plot(IsOpenCircuit[TIME],IsOpenCircuit[PHASEC], label="C")
     plt.grid(color='gray', linewidth=0.5)
-    plt.title("Three-phase currents.")
+    plt.title("Normal three-phase currents.")
     plt.xlim([4.02,4.08])
     plt.ylim([-15,15])
     plt.xlabel("Time(s)")
@@ -88,62 +89,46 @@ if (togglePlot):
     plt.show()
 
 # 1.1) Frequency domain plots. 
-beforeFaultA = 4.0
-beforeFaultB = 5.0
-afterFaultA = 5.5
-afterFaultB = 6.5
+# Time window before and after fault for the plots.
+TIME_BEFORE_A = 4.0
+TIME_BEFORE_B = 5.0
+TIME_AFTER_A = 5.5
+TIME_AFTER_B = 6.5
 
 # Transform dataframe.series into numpy array.
 IsAArray = IsOpenCircuit[PHASEA][
-    (IsOpenCircuit[TIME] > beforeFaultA) 
-    & (IsOpenCircuit[TIME] < beforeFaultB)].values
+    (IsOpenCircuit[TIME] >= TIME_BEFORE_A) 
+    & (IsOpenCircuit[TIME] <= TIME_BEFORE_B)].values
 
-xf, yf, N = tools.FFT.calcFFT(IsAArray, beforeFaultA - beforeFaultB)
-intensity = 2.0/N*np.abs(yf[N//2+1:])
+samplePeriod = (TIME_BEFORE_B - TIME_BEFORE_A)/len(IsAArray)
+xf, yf = tools.calcFFT(IsAArray, samplePeriod)
 
 if (togglePlot):
-    plt.plot(xf, intensity)
-    plt.title("Phase A current Fourier analysis.")
+    plt.plot(xf, yf)
+    plt.title("Normal phase A current Fourier analysis.")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")
     plt.show()
 
-if (togglePlot):
-    xfbar = [0.0, fn*2, fn*3, fn*4, fn*5, fn*6]
-    yfbar = [] 
-    j = 0
-    for i in range(len(xf)):
-        if (i == 0 or i%fn == 0):
-            yfbar.append(intensity[i])
-            j += 1
-        if (j == len(xfbar)):
-            break
-    
-    plt.bar(xfbar, yfbar)
-    plt.title("Phase A current harmonic frequencies.")
-    plt.xlabel("Harmonic frequencies (Hz)")
-    plt.ylabel("Intensity")
-    plt.show()
-
 # RMS of the signal
-signalRMS = tools.RMS(IsAArray, fn, Ts)
+signalRMS = tools.RMS(IsAArray, fn, samplePeriod)
 
 if (togglePlot):
     plt.plot([i*1.0e-6 for i in range(len(signalRMS))], signalRMS)
-    plt.title("True RMS of the phase A normal")
+    plt.title("True RMS of the normal phase A")
     plt.xlabel("Time(s)")
     plt.ylabel("Stator Current (A)")
     plt.show()
 
-# Normalized version of the plot.
-ratio = 1
-normalIsA = IsAArray/np.max(IsAArray)*ratio
-
-xf, yf, N = tools.calcFFT(normalIsA, beforeFaultA - beforeFaultB)
+# Normalized version.
+RATIO = 1
+normalIsA = IsAArray/np.max(IsAArray)*RATIO
+samplePeriod = (TIME_BEFORE_B - TIME_BEFORE_A)/len(normalIsA)
+xf, yf = tools.calcFFT(normalIsA, samplePeriod)
 
 if (togglePlot):
-    plt.plot(xf, 2.0/N*np.abs(yf[N//2+1:]))
-    plt.title("Phase A current (normalized).")
+    plt.plot(xf, yf)
+    plt.title("Normal phase A current (normalized).")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")
     plt.show()
@@ -181,26 +166,27 @@ if (togglePlot):
 # 2.1)  Frequency domain plots. 
 # Transform dataframe.series into numpy array.
 IsAOpenCircuitFault = IsOpenCircuit[PHASEA][
-    (IsOpenCircuit[TIME] > afterFaultA) 
-    & (IsOpenCircuit[TIME] < afterFaultB)].values
+    (IsOpenCircuit[TIME] > TIME_AFTER_A) 
+    & (IsOpenCircuit[TIME] < TIME_AFTER_B)].values
 
-xfOC, yfOC, NOC = tools.calcFFT(IsAOpenCircuitFault, afterFaultA - afterFaultB)
+samplePeriod = (TIME_AFTER_B - TIME_AFTER_A)/len(IsAOpenCircuitFault)
+xfOC, yfOC = tools.calcFFT(IsAOpenCircuitFault, samplePeriod)
 
 if (togglePlot):
-    plt.plot(xfOC, 2.0/NOC*np.abs(yfOC[NOC//2+1:]))
+    plt.plot(xfOC, yfOC)
     plt.title("Open-circuit phase A current.")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")
     plt.show()
 
 # Normalized version of the plot
-normalIsAOpenCircuitFault = IsAOpenCircuitFault/np.max(IsAArray)*ratio
+normalIsAOpenCircuitFault = IsAOpenCircuitFault/np.max(IsAArray)*RATIO
 
-xfOC, yfOCN, NOC = tools.calcFFT(normalIsAOpenCircuitFault, 
-                               afterFaultA - afterFaultB) 
+samplePeriod = (TIME_AFTER_B - TIME_AFTER_A)/len(normalIsAOpenCircuitFault)
+xfOC, yfOCN = tools.calcFFT(normalIsAOpenCircuitFault, samplePeriod)
 
 if (togglePlot):
-    plt.plot(xfOC, 2.0/NOC*np.abs(yfOCN[NOC//2+1:]))
+    plt.plot(xfOC, yfOCN)
     plt.title("Open-circuit phase A current (normalized).")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")
@@ -253,25 +239,27 @@ if (togglePlot):
 
 # 3.1) Frequency domain plots.
 IsAShortCircuitFault = IsShortCircuit[PHASEA][
-    (IsShortCircuit[TIME] > afterFaultA) 
-    & (IsShortCircuit[TIME] < afterFaultB)].values
+    (IsShortCircuit[TIME] > TIME_AFTER_A) 
+    & (IsShortCircuit[TIME] < TIME_AFTER_B)].values
 
-xfSC, yfSC, NSC = tools.calcFFT(IsAShortCircuitFault, afterFaultA - afterFaultB)
+samplePeriod = (TIME_AFTER_B - TIME_AFTER_A)/len(IsAShortCircuitFault)
+xfSC, yfSC = tools.calcFFT(IsAShortCircuitFault, samplePeriod)
 
 if (togglePlot):
-    plt.plot(xfSC, 2.0/NSC*np.abs(yfSC[NSC//2+1:]))
+    plt.plot(xfSC, yfSC)
     plt.title("Short-circuit phase A current.")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")
     plt.show()
 
 # Normalized version of the plot
-normalIsAShortCircuit = IsAShortCircuitFault/np.max(IsAArray)*ratio
+normalIsAShortCircuit = IsAShortCircuitFault/np.max(IsAArray)*RATIO
 
-xfSC, yfSC, NSC = tools.calcFFT(normalIsAShortCircuit, afterFaultA - afterFaultB)
+samplePeriod = (TIME_AFTER_B - TIME_AFTER_A)/len(normalIsAShortCircuit)
+xfSC, yfSC = tools.calcFFT(normalIsAShortCircuit, samplePeriod)
 
 if (togglePlot):
-    plt.plot(xfSC, 2.0/NSC*np.abs(yfSC[NSC//2+1:]))
+    plt.plot(xfSC, yfSC)
     plt.title("Short-circuit phase A current normalized.")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")
