@@ -40,3 +40,10 @@ plt.title("Spectrum analysis")
 plt.xlabel("Frequency(Hz)")
 plt.ylabel("Intensity")
 plt.show()
+
+h = tools.harmonics(y, x, Fi, 8)
+
+x = ["h0", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8"]
+plt.bar(x, h)
+plt.title("Harmonics")
+plt.show()

@@ -1,11 +1,12 @@
 ''' 
-Plots data from the open and short-circuit simulations for the model 15
-induction motor from the MATLAB preset. The model has scalar control, 
-a fan load, and nominal speed.
+Analise data from the simulations of the open and short-circuit for 
+the model 15 of induction motor from the MATLAB preset. The model has 
+scalar control, a fan load, and nominal speed. The simulations are
+10s long and the fault is caused at the time 5s.
 
 Summary 
 1) Normal operation and general plots.
-1.1) Frequency domain plots.
+1.1) Frequency analysis.
 
 2) Open-circuit simulation.
 2.1) Frequency domain plots. 
@@ -13,10 +14,9 @@ Summary
 3) Short-circuit simulation.
 3.1) Frequency domain plots.
 
-Date: 31/10/2022
+Date: 04/11/2022
 '''
  
-from re import I
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +24,7 @@ import numpy as np
 import tools 
 
 # Select to plot or not
-togglePlot = True
+togglePlot = False
 
 # Nominal frequency
 fn = 50.0
@@ -32,9 +32,8 @@ fn = 50.0
 # Sample period
 Ts = 1.e-06
 
-# 1) Normal operation and general plots. 
-# Import data from the simulation of open circuit with the model 15 at
-# full speed.
+# 1) Normal operation and general plots.
+# Import data from the open-circuit simulation.
 from Simulations.model15ScalarControl.openCircuit.T1FullSpeed import (
     Isa as IsAOpenCircuit,
     Isb as IsBOpenCircuit,
@@ -88,8 +87,8 @@ if (togglePlot):
     plt.ylabel("Speed")
     plt.show()
 
-# 1.1) Frequency domain plots. 
-# Time window before and after fault for the plots.
+# 1.1) Frequency analysis.
+# Time window before and after fault for the frequency analysis.
 TIME_BEFORE_A = 4.0
 TIME_BEFORE_B = 5.0
 TIME_AFTER_A = 5.5
@@ -102,19 +101,31 @@ IsAArray = IsOpenCircuit[PHASEA][
 
 samplePeriod = (TIME_BEFORE_B - TIME_BEFORE_A)/len(IsAArray)
 xf, yf = tools.calcFFT(IsAArray, samplePeriod)
+f1Freq, f1FFT = tools.getHighestFFT(xf, yf)
 
-if (togglePlot):
-    plt.plot(xf, yf)
+if (True):
+    plt.stem(xf, yf, markerfmt="D")
     plt.title("Normal phase A current Fourier analysis.")
     plt.xlabel("Frequencies (Hz)")
-    plt.ylabel("Intensity")
+    plt.ylabel("Intensities")
+    plt.xlim(0,400)
+    plt.show()
+
+# Bar plot with the hamonics.
+freqList,fftList = tools.harmonics(xf, yf, f1Freq, 5, interval=3)
+harmonicIndex = ["h0","h1","h2","h3","h4","h5"]
+
+if (True):
+    plt.bar(harmonicIndex, fftList)
+    plt.title("Normal harmonic values (h1={h1:.2f} Hz)\n".format(h1 = f1Freq)
+               +"for phase A current")
     plt.show()
 
 # RMS of the signal
-signalRMS = tools.RMS(IsAArray, fn, samplePeriod)
+signalRMS = tools.RMS(IsAArray, f1Freq, samplePeriod)
 
-if (togglePlot):
-    plt.plot([i*1.0e-6 for i in range(len(signalRMS))], signalRMS)
+if (True):
+    plt.plot([i*Ts for i in range(len(signalRMS))], signalRMS)
     plt.title("True RMS of the normal phase A")
     plt.xlabel("Time(s)")
     plt.ylabel("Stator Current (A)")
@@ -126,11 +137,12 @@ normalIsA = IsAArray/np.max(IsAArray)*RATIO
 samplePeriod = (TIME_BEFORE_B - TIME_BEFORE_A)/len(normalIsA)
 xf, yf = tools.calcFFT(normalIsA, samplePeriod)
 
-if (togglePlot):
-    plt.plot(xf, yf)
+if (True):
+    plt.stem(xf, yf, markerfmt="D")
     plt.title("Normal phase A current (normalized).")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")
+    plt.xlim(0,400)
     plt.show()
 
 # 2) Open-Circuit simulation.
@@ -173,10 +185,21 @@ samplePeriod = (TIME_AFTER_B - TIME_AFTER_A)/len(IsAOpenCircuitFault)
 xfOC, yfOC = tools.calcFFT(IsAOpenCircuitFault, samplePeriod)
 
 if (togglePlot):
-    plt.plot(xfOC, yfOC)
+    plt.stem(xfOC, yfOC, markerfmt="D")
     plt.title("Open-circuit phase A current.")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")
+    plt.xlim(0,400)
+    plt.show()
+
+# Bar plot with the hamonics.
+freqListOfOC, fftListOfOC = tools.harmonics(xfOC, yfOC, f1Freq, 5, interval=3)
+harmonicIndex = ["h0","h1","h2","h3","h4","h5"]
+
+if (True):
+    plt.bar(harmonicIndex, fftListOfOC)
+    plt.title("Open-circuit harmonic values (h1={h1:.2f} Hz)\n".format(h1 = f1Freq)
+               +"for phase A current")
     plt.show()
 
 # Normalized version of the plot
@@ -185,11 +208,12 @@ normalIsAOpenCircuitFault = IsAOpenCircuitFault/np.max(IsAArray)*RATIO
 samplePeriod = (TIME_AFTER_B - TIME_AFTER_A)/len(normalIsAOpenCircuitFault)
 xfOC, yfOCN = tools.calcFFT(normalIsAOpenCircuitFault, samplePeriod)
 
-if (togglePlot):
-    plt.plot(xfOC, yfOCN)
+if (True):
+    plt.stem(xfOC, yfOCN, markerfmt="D")
     plt.title("Open-circuit phase A current (normalized).")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")
+    plt.xlim(0,400)
     plt.show()
 
 # 3) Short-circuit simulation. 
@@ -245,11 +269,22 @@ IsAShortCircuitFault = IsShortCircuit[PHASEA][
 samplePeriod = (TIME_AFTER_B - TIME_AFTER_A)/len(IsAShortCircuitFault)
 xfSC, yfSC = tools.calcFFT(IsAShortCircuitFault, samplePeriod)
 
-if (togglePlot):
-    plt.plot(xfSC, yfSC)
+if (True):
+    plt.stem(xfSC, yfSC, markerfmt="D")
     plt.title("Short-circuit phase A current.")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")
+    plt.xlim(0,400)
+    plt.show()
+
+# Bar plot with the hamonics.
+freqListOfSc, fftListOfSc = tools.harmonics(yfSC, xfSC, f1Freq, 5, interval=3)
+harmonicIndex = ["h0","h1","h2","h3","h4","h5"]
+
+# There is a problem here: h1 is too high.
+if (True):
+    plt.bar(harmonicIndex, fftListOfSc)
+    plt.title("Short-circuit harmonic values")
     plt.show()
 
 # Normalized version of the plot
@@ -259,7 +294,7 @@ samplePeriod = (TIME_AFTER_B - TIME_AFTER_A)/len(normalIsAShortCircuit)
 xfSC, yfSC = tools.calcFFT(normalIsAShortCircuit, samplePeriod)
 
 if (togglePlot):
-    plt.plot(xfSC, yfSC)
+    plt.stem(xfSC, yfSC, markerfmt="D")
     plt.title("Short-circuit phase A current normalized.")
     plt.xlabel("Frequencies (Hz)")
     plt.ylabel("Intensity")

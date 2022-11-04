@@ -4,3 +4,5 @@
 # All files from env
 env
 
+# All file with name 
+__pycache__
