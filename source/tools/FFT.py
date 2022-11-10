@@ -54,16 +54,6 @@ def harmonics(x, Y, f1, n, interval=10):
             fftList[k] = fftList[k] + Y[j]
     return freqList, fftList,
 
-def checkHarmonic(x, Y, f1, interval=10):
-    # Check the frequency first harmonic of a signal based on the f1 
-    # position and nearby frequencies.
-    indexesOfFreq = np.where((x >= f1 - interval) & (x <= f1 + interval))[0]
-    
-    fftValues = Y[indexesOfFreq]
-    maxFFT= np.max(fftValues)
-    maxFFTIndex = np.where(Y == maxFFT)[0]
-    return maxFFT, maxFFTIndex
-
 def getHighestFFT(x, Y):
     # Return the tupple (frequency,fft) with the highest fft.
     highestFFT = 0.
@@ -75,3 +65,27 @@ def getHighestFFT(x, Y):
             highestFFT = Y[i]
             highestFreq = x[i]
     return highestFreq, highestFFT
+
+def checkHarmonics(x, Y, h1, numberOfElements):
+    # Check the existence of approximate multiples of frequency h1.
+    # Receive two lists: x with the frequencies and Y with the 
+    # corresponding FFT values. 
+    zipped = zip(x,Y)
+    
+    # Create a list to record the tupple (freq, FFT) 
+    harmonicList = []
+
+    # L is the length of interval to check approximate multiples.
+    L = 3
+    i = 0
+
+    for item in zipped:
+        if ((item[0] >= i*h1 - L) and (item[0] <= i*h1 + L)):
+            harmonicList.append(item)
+        if i == numberOfElements:
+            break
+        i += 1
+    
+    # Unzipping the tupples.
+    selectedFreq, selectedY = zip(*harmonicList)
+    return selectedFreq, selectedY

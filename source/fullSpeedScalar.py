@@ -14,7 +14,7 @@ Summary
 3) Short-circuit simulation.
 3.1) Frequency domain plots.
 
-Date: 04/11/2022
+Date: 10/11/2022
 '''
  
 import pandas as pd
@@ -100,10 +100,12 @@ IsAArray = IsOpenCircuit[PHASEA][
     & (IsOpenCircuit[TIME] <= TIME_BEFORE_B)].values
 
 samplePeriod = (TIME_BEFORE_B - TIME_BEFORE_A)/len(IsAArray)
+
+# First, get the FFT distribuition, then get the first harmonics.
 xf, yf = tools.calcFFT(IsAArray, samplePeriod)
 f1Freq, f1FFT = tools.getHighestFFT(xf, yf)
 
-if (True):
+if (togglePlot):
     plt.stem(xf, yf, markerfmt="D")
     plt.title("Normal phase A current Fourier analysis.")
     plt.xlabel("Frequencies (Hz)")
@@ -112,10 +114,10 @@ if (True):
     plt.show()
 
 # Bar plot with the hamonics.
-freqList,fftList = tools.harmonics(xf, yf, f1Freq, 5, interval=3)
+freqList, fftList = tools.harmonics(xf, yf, f1Freq, 5, interval=3)
 harmonicIndex = ["h0","h1","h2","h3","h4","h5"]
 
-if (True):
+if (togglePlot):
     plt.bar(harmonicIndex, fftList)
     plt.title("Normal harmonic values (h1={h1:.2f} Hz)\n".format(h1 = f1Freq)
                +"for phase A current")
@@ -137,7 +139,7 @@ normalIsA = IsAArray/np.max(IsAArray)*RATIO
 samplePeriod = (TIME_BEFORE_B - TIME_BEFORE_A)/len(normalIsA)
 xf, yf = tools.calcFFT(normalIsA, samplePeriod)
 
-if (True):
+if (togglePlot):
     plt.stem(xf, yf, markerfmt="D")
     plt.title("Normal phase A current (normalized).")
     plt.xlabel("Frequencies (Hz)")
@@ -196,7 +198,7 @@ if (togglePlot):
 freqListOfOC, fftListOfOC = tools.harmonics(xfOC, yfOC, f1Freq, 5, interval=3)
 harmonicIndex = ["h0","h1","h2","h3","h4","h5"]
 
-if (True):
+if (togglePlot):
     plt.bar(harmonicIndex, fftListOfOC)
     plt.title("Open-circuit harmonic values (h1={h1:.2f} Hz)\n".format(h1 = f1Freq)
                +"for phase A current")
@@ -208,7 +210,7 @@ normalIsAOpenCircuitFault = IsAOpenCircuitFault/np.max(IsAArray)*RATIO
 samplePeriod = (TIME_AFTER_B - TIME_AFTER_A)/len(normalIsAOpenCircuitFault)
 xfOC, yfOCN = tools.calcFFT(normalIsAOpenCircuitFault, samplePeriod)
 
-if (True):
+if (togglePlot):
     plt.stem(xfOC, yfOCN, markerfmt="D")
     plt.title("Open-circuit phase A current (normalized).")
     plt.xlabel("Frequencies (Hz)")
@@ -269,7 +271,7 @@ IsAShortCircuitFault = IsShortCircuit[PHASEA][
 samplePeriod = (TIME_AFTER_B - TIME_AFTER_A)/len(IsAShortCircuitFault)
 xfSC, yfSC = tools.calcFFT(IsAShortCircuitFault, samplePeriod)
 
-if (True):
+if (togglePlot):
     plt.stem(xfSC, yfSC, markerfmt="D")
     plt.title("Short-circuit phase A current.")
     plt.xlabel("Frequencies (Hz)")
@@ -282,7 +284,7 @@ freqListOfSc, fftListOfSc = tools.harmonics(yfSC, xfSC, f1Freq, 5, interval=3)
 harmonicIndex = ["h0","h1","h2","h3","h4","h5"]
 
 # There is a problem here: h1 is too high.
-if (True):
+if (togglePlot):
     plt.bar(harmonicIndex, fftListOfSc)
     plt.title("Short-circuit harmonic values")
     plt.show()

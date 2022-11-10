@@ -41,9 +41,20 @@ plt.xlabel("Frequency(Hz)")
 plt.ylabel("Intensity")
 plt.show()
 
-h = tools.harmonics(y, x, Fi, 8)
+hx, hy = tools.harmonics(x, y, Fi, 8)
+print(len(hx), len(hy))
+print("hx vector:", hx)
+print("hy vector:", hy)
+legend = ["h0", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8"]
 
-x = ["h0", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8"]
-plt.bar(x, h)
+plt.bar(hx, hy)
 plt.title("Harmonics")
 plt.show()
+
+# hx2, hy2 = tools.checkHarmonics(x, y, Fi, 8)
+# print(len(hx2), len(hy2))
+# print("hx2 vector:", hx2)
+# print("hy2 vector:", hy2)
+# plt.bar(hx2, hy2)
+# plt.title("Harmonics with new function.")
+# plt.show()
