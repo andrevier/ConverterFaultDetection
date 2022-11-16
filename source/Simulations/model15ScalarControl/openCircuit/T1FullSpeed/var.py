@@ -1,6 +1,6 @@
 import pandas as pd
 
-# Transfer all the csv data to variables.
+# Convert all the csv data into dataframe series.
 path = "Simulations\\model15ScalarControl\\openCircuit\\T1FullSpeed\\"
 
 Isa = pd.read_csv(path + "isa.csv")

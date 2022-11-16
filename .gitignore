@@ -6,3 +6,5 @@ env
 
 # All file with name 
 **/__pycache__
+
+.drawio
