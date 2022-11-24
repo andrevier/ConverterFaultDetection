@@ -144,7 +144,7 @@ for i in range(0,numberOfIntevals):
     
     isaRMS = tools.RMS2(isa)
     RMSA = np.append(RMSA, isaRMS)
-    RMSANorm = np.append(RMSANorm, RMSA/baseCurrentRMS)
+    RMSANorm = np.append(RMSANorm, isaRMS/baseCurrentRMS)
     
     # Data for the phase-B current
     freqArrayB, fftArrayB = tools.calcFFT(isb, tsb)
@@ -160,7 +160,7 @@ for i in range(0,numberOfIntevals):
     
     isbRMS = tools.RMS2(isb)
     RMSB = np.append(RMSB, isbRMS)
-    RMSBNorm = np.append(RMSBNorm, RMSB/baseCurrentRMS)
+    RMSBNorm = np.append(RMSBNorm, isbRMS/baseCurrentRMS)
     
     # Data for the phase-C current
     freqArrayC, fftArrayC = tools.calcFFT(isc, tsc)
@@ -175,7 +175,7 @@ for i in range(0,numberOfIntevals):
     
     iscRMS = tools.RMS2(isc)
     RMSC = np.append(RMSC, iscRMS)
-    RMSCNorm = np.append(RMSCNorm, RMSC/baseCurrentRMS)
+    RMSCNorm = np.append(RMSCNorm, iscRMS/baseCurrentRMS)
 
     # 2.3) Check for fault states and fault modes.
     # Fault state can be 1 if fault occurs or 0, otherwise.
@@ -247,39 +247,44 @@ if (togglePlot):
 
 # Plot of the first three harmonics over time.
 if (True):
-    fig, axs = plt.subplots(8)
+    fig, axs = plt.subplots(9)
     fig.set_figwidth(10)
     fig.set_figheight(20)
-    axs[0].plot(timeList, RMSA)
-    axs[0].plot(timeList, RMSB)
-    axs[0].plot(timeList, RMSC)
+    axs[0].plot(timeList, RMSANorm)
+    axs[0].plot(timeList, RMSBNorm)
+    axs[0].plot(timeList, RMSCNorm)
     axs[0].legend(["IA RMS", "IB RMS", "IC RMS"])
 
-    axs[1].plot(timeList, h1A)
-    axs[1].plot(timeList, h2A)
-    axs[1].plot(timeList, h3A)
-    axs[1].legend(["IA1", "IA2", "IA3"])
+    axs[1].plot(timeList, averageA)
+    axs[1].plot(timeList, averageB)
+    axs[1].plot(timeList, averageC)
+    axs[1].legend(["IA", "IB", "IC"])
 
-    axs[2].plot(timeList, h1B)
-    axs[2].plot(timeList, h2B)
-    axs[2].plot(timeList, h3B)
-    axs[2].legend(["IB1", "IB2", "IB3"])
-    axs[2].set(ylabel='FFT of the first 3 harmonics')
+    axs[2].plot(timeList, h1A)
+    axs[2].plot(timeList, h2A)
+    axs[2].plot(timeList, h3A)
+    axs[2].legend(["IA1", "IA2", "IA3"])
 
-    axs[3].plot(timeList, h1C)
-    axs[3].plot(timeList, h2C)
-    axs[3].plot(timeList, h3C)
-    axs[3].legend(["IC1", "IC2", "IC3"])
+    axs[3].plot(timeList, h1B)
+    axs[3].plot(timeList, h2B)
+    axs[3].plot(timeList, h3B)
+    axs[3].legend(["IB1", "IB2", "IB3"])
+    axs[3].set(ylabel='FFT of the first 3 harmonics')
+
+    axs[4].plot(timeList, h1C)
+    axs[4].plot(timeList, h2C)
+    axs[4].plot(timeList, h3C)
+    axs[4].legend(["IC1", "IC2", "IC3"])
     
-    axs[4].plot(timeList, h21a)
-    axs[4].plot(timeList, h21b)
-    axs[4].plot(timeList, h21c)
-    axs[4].legend(["h21a", "h21b", "h21c"])
+    axs[5].plot(timeList, h21a)
+    axs[5].plot(timeList, h21b)
+    axs[5].plot(timeList, h21c)
+    axs[5].legend(["h21a", "h21b", "h21c"])
 
-    axs[5].plot(timeList, h31a)
-    axs[5].plot(timeList, h31b)
-    axs[5].plot(timeList, h31c)
-    axs[5].legend(["h31a", "h31b", "h31c"])
+    axs[6].plot(timeList, h31a)
+    axs[6].plot(timeList, h31b)
+    axs[6].plot(timeList, h31c)
+    axs[6].legend(["h31a", "h31b", "h31c"])
 
     if (len(timeList) != len(faultStateList)):
         print("Time and fault list doesnt match.")
@@ -287,14 +292,14 @@ if (True):
               + str(len(faultStateList)))
         raise ValueError
 
-    axs[6].plot(timeList, faultStateList)
-    axs[6].legend("Fault State")
+    axs[7].plot(timeList, faultStateList)
+    axs[7].legend("Fault State")
         
     if (len(timeList) != len(faultModeList)):
         print("Time and fault list doesnt match.")
         print("timeList: " + str(len(timeList)) + " faultList[0]: " + str(len(faultModeList)))
         raise ValueError
 
-    axs[7].plot(timeList, faultModeList)
-    axs[7].legend("Fault Mode")
+    axs[8].plot(timeList, faultModeList)
+    axs[8].legend("Fault Mode")
     plt.show()
