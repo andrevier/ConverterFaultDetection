@@ -52,7 +52,7 @@ def harmonics(x, Y, f1, n, interval=10):
         # frequency position.
         for j in indexArray:
             fftList[k] = fftList[k] + Y[j]
-    return freqList, fftList,
+    return freqList, fftList
 
 def getHighestFFT(x, Y):
     # Return the tupple (frequency,fft) with the highest fft.
