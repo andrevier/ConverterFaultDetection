@@ -284,9 +284,9 @@ class ConditionMonitoring:
                     self._T6 = 6
             elif minElement == 3:
                 if self._IcAve < 0:
-                    self._T2 = 2
+                    self._T5 = 2
                 else:
-                    self._T5 = 5 
+                    self._T2 = 5 
 
         return self._T1, self._T2, self._T3, self._T4, self._T5, self._T6
 

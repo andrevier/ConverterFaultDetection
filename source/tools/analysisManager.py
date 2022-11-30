@@ -217,7 +217,7 @@ class AnalysisManager:
             self._switchState[i,4] = switchStateTupple[4]
             self._switchState[i,5] = switchStateTupple[5]
 
-    def plot(self, yAxisList):
+    def plot(self, yAxisList, windowTitle=''):
         '''Helper method to plots.
         Recieve a list yAxisList with each element as a list of 
         elements to the plots. 
@@ -266,10 +266,10 @@ class AnalysisManager:
         numberOfPlots = len(yAxisList)
         flag = False
         if numberOfPlots == 1:
-            _,axs = plt.subplots()
+            fig,axs = plt.subplots(num=windowTitle)
             flag = True
         else:
-            _, axs = plt.subplots(numberOfPlots)
+            fig, axs = plt.subplots(numberOfPlots,num=windowTitle)
         
         if flag:
             keyList = list()
@@ -299,4 +299,5 @@ class AnalysisManager:
                 if i == len(yAxisList) - 1:
                     axs[i].set(xlabel="time")
                 axs[i].legend(legendList)
-        plt.show()
+        #plt.show()
+        fig.show()
