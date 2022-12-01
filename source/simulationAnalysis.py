@@ -23,29 +23,40 @@ Ibound = 0.10
 I21Bound = .10
 I31Bound = .10
 
-# # 1. Open-circuit simulation of T1 switch.
+# 1. Open-circuit simulation of T1 switch.
 # from Simulations.model15ScalarControl.openCircuit.T1FullSpeed import (
 #     Isa,Isb,Isc,time as timeSeries)
 
-# # Make a dataframe with time and currents
-# Isadf = pd.concat([timeSeries, Isa], ignore_index=True, axis=1)
-# Isbdf = pd.concat([timeSeries, Isb], ignore_index=True, axis=1)
-# Iscdf = pd.concat([timeSeries, Isc], ignore_index=True, axis=1)
+# Convert all the csv data into dataframe series.
+path = "Simulations\\model15ScalarControl\\openCircuit\\T1FullSpeed\\"
+
+Isa = pd.read_csv(path + "isa.csv")
+Isb = pd.read_csv(path + "isb.csv")
+Isc = pd.read_csv(path + "isc.csv")
+Te = pd.read_csv(path + "Te.csv")
+time = pd.read_csv(path + "time.csv")
+Vab = pd.read_csv(path + "Vab.csv")
+wm = pd.read_csv(path + "wm.csv")
+
+# Make a dataframe with time and currents
+Isadf = pd.concat([time, Isa], ignore_index=True, axis=1)
+Isbdf = pd.concat([time, Isb], ignore_index=True, axis=1)
+Iscdf = pd.concat([time, Isc], ignore_index=True, axis=1)
 
 
-# analysisT1 = tools.AnalysisManager(Ia=Isadf, Ib=Isbdf, Ic=Iscdf,
-#                                    lineFreq=f,
-#                                    baseCurrentRMS=Ibase,
-#                                    timeInterval=timeInterval,
-#                                    maxTime=maxTime,
-#                                    infCurrentBound=Ibound, 
-#                                    I21Bound=I21Bound, 
-#                                    I31Bound=I31Bound)
+analysisT1 = tools.AnalysisManager(Ia=Isadf, Ib=Isbdf, Ic=Iscdf,
+                                   lineFreq=f,
+                                   baseCurrentRMS=Ibase,
+                                   timeInterval=timeInterval,
+                                   maxTime=maxTime,
+                                   infCurrentBound=Ibound, 
+                                   I21Bound=I21Bound, 
+                                   I31Bound=I31Bound)
 
-# analysisT1.runAnalysis()
-# analysisT1.plot([["I1a","I1b","I1c"],["faultstate"],
-#                  ["faultmode"],["t1","t2","t3","t4","t5","t6"]],
-#                   windowTitle="Open-circuit of T1")
+analysisT1.runAnalysis()
+analysisT1.plot([["I1a","I1b","I1c"],["faultstate"],
+                 ["faultmode"],["t1","t2","t3","t4","t5","t6"]],
+                  windowTitle="Open-circuit of T1")
 
 # # 2. Open-circuit simulation of T4 switch.
 # from Simulations.model15ScalarControl.openCircuit.T4FullSpeed import (
@@ -116,28 +127,28 @@ I31Bound = .10
 #                  ["faultmode"],["t1","t2","t3","t4","t5","t6"]],
 #                  windowTitle="Open-circuit of T6")
 
-# 5. Open-circuit simulation of T5 switch.
-from Simulations.model15ScalarControl.openCircuit.T5FullSpeed import (
-    Isa,Isb,Isc,time as timeSeries)
+# # 5. Open-circuit simulation of T5 switch.
+# from Simulations.model15ScalarControl.openCircuit.T5FullSpeed import (
+#     Isa,Isb,Isc,time as timeSeries)
 
-# Make a dataframe with time and currents
-Isadf = pd.concat([timeSeries, Isa], ignore_index=True, axis=1)
-Isbdf = pd.concat([timeSeries, Isb], ignore_index=True, axis=1)
-Iscdf = pd.concat([timeSeries, Isc], ignore_index=True, axis=1)
+# # Make a dataframe with time and currents
+# Isadf = pd.concat([timeSeries, Isa], ignore_index=True, axis=1)
+# Isbdf = pd.concat([timeSeries, Isb], ignore_index=True, axis=1)
+# Iscdf = pd.concat([timeSeries, Isc], ignore_index=True, axis=1)
 
-analysisT5 = tools.AnalysisManager(Ia=Isadf, Ib=Isbdf, Ic=Iscdf,
-                                   lineFreq=f,
-                                   baseCurrentRMS=Ibase,
-                                   timeInterval=timeInterval,
-                                   maxTime=maxTime,
-                                   infCurrentBound=Ibound, 
-                                   I21Bound=I21Bound, 
-                                   I31Bound=I31Bound)
+# analysisT5 = tools.AnalysisManager(Ia=Isadf, Ib=Isbdf, Ic=Iscdf,
+#                                    lineFreq=f,
+#                                    baseCurrentRMS=Ibase,
+#                                    timeInterval=timeInterval,
+#                                    maxTime=maxTime,
+#                                    infCurrentBound=Ibound, 
+#                                    I21Bound=I21Bound, 
+#                                    I31Bound=I31Bound)
 
-analysisT5.runAnalysis()
-analysisT5.plot([["I1a","I1b","I1c"],["faultstate"],
-                 ["faultmode"],["t1","t2","t3","t4","t5","t6"]],
-                 windowTitle="Open-circuit of T5")
+# analysisT5.runAnalysis()
+# analysisT5.plot([["I1a","I1b","I1c"],["faultstate"],
+#                  ["faultmode"],["t1","t2","t3","t4","t5","t6"]],
+#                  windowTitle="Open-circuit of T5")
 # acionou T2 ao invés de T5.
 # # 6. Open-circuit simulation of T2 switch.
 # from Simulations.model15ScalarControl.openCircuit.T2FullSpeed import (

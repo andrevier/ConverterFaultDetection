@@ -299,5 +299,5 @@ class AnalysisManager:
                 if i == len(yAxisList) - 1:
                     axs[i].set(xlabel="time")
                 axs[i].legend(legendList)
-        #plt.show()
-        fig.show()
+        plt.show()
+        
