@@ -8,6 +8,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 import tools
 
 # Main line current parameters.
@@ -24,19 +25,19 @@ I21Bound = .10
 I31Bound = .10
 
 # 1. Open-circuit simulation of T1 switch.
-# from Simulations.model15ScalarControl.openCircuit.T1FullSpeed import (
-#     Isa,Isb,Isc,time as timeSeries)
-
 # Convert all the csv data into dataframe series.
-path = "Simulations\\model15ScalarControl\\openCircuit\\T1FullSpeed\\"
+path = '''D:\\mestrado\\projeto\\Simulations\\model15ScalarControl\\openCircuit\\T1FullSpeed'''
 
-Isa = pd.read_csv(path + "isa.csv")
-Isb = pd.read_csv(path + "isb.csv")
-Isc = pd.read_csv(path + "isc.csv")
-Te = pd.read_csv(path + "Te.csv")
-time = pd.read_csv(path + "time.csv")
-Vab = pd.read_csv(path + "Vab.csv")
-wm = pd.read_csv(path + "wm.csv")
+# Change to path
+os.chdir(path)
+
+Isa = pd.read_csv("isa.csv")
+Isb = pd.read_csv("isb.csv")
+Isc = pd.read_csv("isc.csv")
+Te = pd.read_csv("Te.csv")
+time = pd.read_csv("time.csv")
+Vab = pd.read_csv("Vab.csv")
+wm = pd.read_csv("wm.csv")
 
 # Make a dataframe with time and currents
 Isadf = pd.concat([time, Isa], ignore_index=True, axis=1)
