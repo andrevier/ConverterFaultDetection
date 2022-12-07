@@ -55,9 +55,11 @@ analysisT1 = tools.AnalysisManager(Ia=Isadf, Ib=Isbdf, Ic=Iscdf,
                                    I31Bound=I31Bound)
 
 analysisT1.runAnalysis()
-analysisT1.plot([["I1a","I1b","I1c"],["faultstate"],
-                 ["faultmode"],["t1","t2","t3","t4","t5","t6"]],
-                  windowTitle="Open-circuit of T1")
+# analysisT1.plot([["I1a","I1b","I1c"],["faultstate"],
+#                  ["faultmode"],["t1","t2","t3","t4","t5","t6"]],
+#                   windowTitle="Open-circuit of T1")
+analysisT1.plot([["Ia","Ib","Ic"]], windowTitle="Open-circuit of T1")
+
 
 # # 2. Open-circuit simulation of T4 switch.
 # from Simulations.model15ScalarControl.openCircuit.T4FullSpeed import (

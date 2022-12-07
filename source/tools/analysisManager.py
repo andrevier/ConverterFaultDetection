@@ -277,8 +277,6 @@ class AnalysisManager:
             for j in range(len(yAxisList[0])):
                 legendList.append(yAxisList[0][j])
                 keyList.append(yAxisList[0][j].lower())
-                print(keyList[j])
-                #axs.plot(self._timeList ,yAxisDict[keyList[j]])
                 axs.plot(yAxisDict[keyList[j]][0],yAxisDict[keyList[j]][1])
             axs.legend(legendList)
             axs.set(xlabel="time")
@@ -293,7 +291,6 @@ class AnalysisManager:
                     legendList.append(yAxisList[i][j])
                     keyList.append(yAxisList[i][j].lower())
                     # Get the attribute of the key in a plot.
-                    #axs[i].plot(self._timeList, yAxisDict[keyList[j]])
                     axs[i].plot(yAxisDict[keyList[j]][0],yAxisDict[keyList[j]][1])
                 
                 if i == len(yAxisList) - 1:
