@@ -15,6 +15,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import pywt
+import tensorflow as tf
+from tensorflow import keras
 import tools
 
 # Main line current parameters.
@@ -56,73 +58,98 @@ TIME = 0
 PHASE = 1
 
 # Experience with part of the signal.
-ia = Isadf[(Isadf[TIME] >= 5.5) & (Isadf[TIME] <= 5.7)]
+# BEFORE = 4.3
+# AFTER = 4.6
+# ia = Isadf[(Isadf[TIME] >= BEFORE) & (Isadf[TIME] <= AFTER)]
+# ib = Isbdf[(Isbdf[TIME] >= BEFORE) & (Isbdf[TIME] <= AFTER)]
+# ic = Iscdf[(Iscdf[TIME] >= BEFORE) & (Iscdf[TIME] <= AFTER)]
 
-ia0 = ia[PHASE].to_list()
-ia0 = [i/Ibase for i in ia0]
-time0 = ia[TIME].to_list()
+# ia0 = ia[PHASE].to_list()
+# ia0 = [i/Ibase for i in ia0]
 
-# Calculate the DWT of daubechies with 2 vanishing moments and signal 
-# extension mode "antisymmetric". Using pywt.dwt:
-(a, d) = pywt.dwt(ia0, "db2", "antisymmetric")
+# ib0 = ia[PHASE].to_list()
+# ib0 = [i/Ibase for i in ib0]
 
-# pywt.dwt decomposes the signal in the first level: a1 and d1.
-ia0reverse = pywt.idwt(a, d, "db2", mode="antisymmetric")
-print("The coefficients:")
-print("length of a = ", len(a))
-print("d = ", len(d))
+# ib0 = ia[PHASE].to_list()
+# ib0 = [i/Ibase for i in ib0]
 
-# Sometimes the inverse DWT gives different length of signal.
-if len(time0) != len(ia0reverse):
-    ia0reverse = ia0reverse[:len(time0)]
+# time0 = ia[TIME].to_list()
 
-# _, axs = plt.subplots(2)
-# axs[0].plot(time0, ia0)
-# axs[1].plot(time0, ia0reverse)
+# Calculate the DWT of daubechies with 4 vanishing moments with
+# pywt.wavedec to decompose into more levels with modes 
+# "periodization" or "antisymmetric".
+# IACoef  = pywt.wavedec(ia0, "db4", mode="antisymmetric", level=6)
+
+# print("length of IACoef is ", len(IACoef))
+# print("shape of each coef array: ", IACoef[0].shape)
+# _, axs = plt.subplots(4,2)
+# axs[0,0].plot(IACoef[0])
+# axs[0,0].legend("a10")
+
+# axs[0,1].plot(IACoef[1])
+# axs[0,1].legend("d9")
+
+# axs[1,0].plot(IACoef[2])
+# axs[1,0].legend("d8")
+
+# axs[1,1].plot(IACoef[3])
+# axs[1,1].legend("d7")
+
+# axs[2,0].plot(IACoef[4])
+# axs[2,0].legend("d6")
+
+# axs[2,1].plot(IACoef[5])
+# axs[2,1].legend("d5")
+
+# axs[3,0].plot(IACoef[6])
+# axs[3,0].legend("d4")
+
 # plt.show()
 
-# Use pywt.wavedec to decompose into more levels and pywt.waverec with
-# modes "periodization" or "antisymmetric".
-a6, d6, d5, d4, d3, d2, d1  = pywt.wavedec(ia0, "db4", mode="antisymmetric", level=6)
-print("a3 lenght = " + str(len(a6)))
-print(a6)
-print("d3 lenght = " + str(len(d6)))
-print(d6)
-print("d2 lenght = " + str(len(d5)))
-print(d5)
-print("d1 lenght = " + str(len(d4)))
-print(d4)
+# Built a NN with 3 layers: input, hidden and output.
+model = keras.models.Sequential([
+    keras.layers.Input(shape=(3,)),
+    keras.layers.Dense(6, activation=keras.activations.sigmoid,
+        name="hidden"),
+    keras.layers.Dense(1, activation=keras.activations.softmax,
+        name="output")
+    ])
 
-_, axs = plt.subplots(5)
-axs[0].plot(time0, ia0)
-axs[0].legend("Ia")
+model.summary()
 
-axs[1].plot(a6)
-axs[1].legend("a6")
+# Creating a trainning and test set. Each line is a instance.
 
-axs[2].plot(d6)
-axs[2].legend("d6")
+# Divide the simulation into segments to calculate and analize the
+# parameters.
+IACoefList = []
+IBCoefList = []
+ICCoefList = []
+for i in range(20, 50):
+    timeList.append((i+1)*timeInterval)
+    ia = Isadf[(Isadf[TIME] >= i*timeInterval)
+               & (Isadf[TIME] <= (i+1)*timeInterval)]
 
-axs[3].plot(d5)
-axs[3].legend("d5")
+    ib = Isbdf[(Isbdf[TIME] >= i*timeInterval)
+               & (Isbdf[TIME] <= (i+1)*timeInterval)]
 
-axs[4].plot(d4)
-axs[4].legend("d4")
-plt.show()
+    ic = Iscdf[(Iscdf[TIME] >= i*timeInterval)
+               & (Iscdf[TIME] <= (i+1)*timeInterval)]
 
-# # Divide the simulation into segments to calculate and analize the
-# # parameters.
-# for i in range(0, numberOfIntervals):
-#     timeList.append((i+1)*timeInterval)
-#     ia = Isadf[(Isadf[TIME] >= i*timeInterval)
-#                & (Isadf[TIME] <= (i+1)*timeInterval)]
+    ia0 = ia[PHASE].values
+    ib0 = ib[PHASE].values
+    ic0 = ic[PHASE].values
 
-#     ib = Isbdf[(Isbdf[TIME] >= i*timeInterval)
-#                & (Isbdf[TIME] <= (i+1)*timeInterval)]
+    IACoef  = pywt.wavedec(ia0, "db4", mode="antisymmetric", level=6)
+    IACoefList.append(IACoef[0])
+    IBCoef  = pywt.wavedec(ib0, "db4", mode="antisymmetric", level=6)
+    IBCoefList.append(IBCoef[0])
+    ICCoef  = pywt.wavedec(ic0, "db4", mode="antisymmetric", level=6)
+    ICCoefList.append(ICCoef[0])
 
-#     ic = Iscdf[(Iscdf[TIME] >= i*timeInterval)
-#                & (Iscdf[TIME] <= (i+1)*timeInterval)]
+print("Coefficients...")
+print(len(IACoefList))
+print(IACoefList[0].shape)
 
-#     ia0 = ia[PHASE].values
-#     ib0 = ib[PHASE].values
-#     ic0 = ic[PHASE].values
+""" Lack of details for implementing the neural network. How does each
+coefficient array are supplied?
+"""
