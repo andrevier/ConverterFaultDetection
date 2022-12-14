@@ -124,32 +124,43 @@ model.summary()
 IACoefList = []
 IBCoefList = []
 ICCoefList = []
-for i in range(20, 50):
-    timeList.append((i+1)*timeInterval)
-    ia = Isadf[(Isadf[TIME] >= i*timeInterval)
-               & (Isadf[TIME] <= (i+1)*timeInterval)]
 
-    ib = Isbdf[(Isbdf[TIME] >= i*timeInterval)
-               & (Isbdf[TIME] <= (i+1)*timeInterval)]
+BEFORE = 2.0
+AFTER = 2.1
+ia = Isadf[(Isadf[TIME] >= BEFORE)
+            & (Isadf[TIME] <= AFTER)]
 
-    ic = Iscdf[(Iscdf[TIME] >= i*timeInterval)
-               & (Iscdf[TIME] <= (i+1)*timeInterval)]
+ib = Isbdf[(Isbdf[TIME] >= BEFORE)
+            & (Isbdf[TIME] <= AFTER)]
 
-    ia0 = ia[PHASE].values
-    ib0 = ib[PHASE].values
-    ic0 = ic[PHASE].values
+ic = Iscdf[(Iscdf[TIME] >= BEFORE)
+            & (Iscdf[TIME] <= AFTER)]
 
-    IACoef  = pywt.wavedec(ia0, "db4", mode="antisymmetric", level=6)
-    IACoefList.append(IACoef[0])
-    IBCoef  = pywt.wavedec(ib0, "db4", mode="antisymmetric", level=6)
-    IBCoefList.append(IBCoef[0])
-    ICCoef  = pywt.wavedec(ic0, "db4", mode="antisymmetric", level=6)
-    ICCoefList.append(ICCoef[0])
+ia0 = ia[PHASE].values
+ib0 = ib[PHASE].values
+ic0 = ic[PHASE].values
 
-print("Coefficients...")
-print(len(IACoefList))
-print(IACoefList[0].shape)
+IACoef  = pywt.wavedec(ia0, "db4", mode="antisymmetric", level=6)
+IACoefList.append(IACoef[0])
+IBCoef  = pywt.wavedec(ib0, "db4", mode="antisymmetric", level=6)
+IBCoefList.append(IBCoef[0])
+ICCoef  = pywt.wavedec(ic0, "db4", mode="antisymmetric", level=6)
+ICCoefList.append(ICCoef[0])
 
-""" Lack of details for implementing the neural network. How does each
-coefficient array are supplied?
+print("Coefficients of approximation...")
+print(len(IACoef[0]))
+print(type(IACoef[0]))
+print(IACoef[0].shape)
+"""Lack of details for implementing the neural network. 
+How does each coefficient array are supplied to the NN?
 """
+# # Hypothesis: Each point in the array is a population member.
+xTrain = np.array([IACoef[0],IBCoef[0],ICCoef[0]])
+yTrain = np.array([1 for i in IACoef[0]])
+print("Trainning matrix: " + str(xTrain.shape))
+print("Matching classification: " + str(yTrain.shape))
+xTrain = np.transpose(xTrain)
+print("New size of trainning matrix: " + str(xTrain.shape))
+# print()
+model.compile(loss=keras.losses.MeanSquaredError(), optimizer="sgd")
+hist = model.fit(xTrain, yTrain, epochs=100)
