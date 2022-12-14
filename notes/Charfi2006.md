@@ -1,6 +1,6 @@
 Paper: "Fault diagnostic in power system using wavelet transforms and neural networks."
 Authors: Charfi, F.; Sellami, F.; Al-Haddad, K.
-data: 2006
+Data: 2006
 
 Discusses fault identification of IGBT switches in a inverter. The fault identification is done in two steps: first detect a fault condition; second, detect which fault occurs. For the last step, three kinds of faults are considered: the open-circuit of the IGBT T1,the open-circuit of the IGBT T2 and the LEG2 open-circuit (IGBT T3 and IGBT T4 simultaneously).
 
